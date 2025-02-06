@@ -10,7 +10,7 @@ class SMSGatewayError(Exception):
 class SMSGateway:
     """Main class for interacting with the 4jawaly SMS Gateway API."""
     
-    BASE_URL = 'https://api-sms.4jawaly.com/api/v1'
+    BASE_URL = 'https://4jawaly.net/api/v1'
     
     def __init__(self, api_key: str, api_secret: str, sender: str):
         """Initialize the SMS Gateway client.
