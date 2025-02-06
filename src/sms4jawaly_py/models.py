@@ -54,10 +54,9 @@ class SenderNameItem(BaseModel):
     """نموذج لاسم المرسل"""
     id: int
     sender_name: str
-    status: str
+    status: int
     note: Optional[str] = None
-    created_at: str = Field(alias='created_at')
-    updated_at: str = Field(alias='updated_at')
+    sabah_request_id: Optional[int] = None
 
 class SenderNamesResponse(BaseModel):
     """نموذج للرد على طلب أسماء المرسلين"""
