@@ -189,7 +189,9 @@ class SMS4JawalyClient:
                 "status": 1,
                 "sender_name": "",
                 "is_ad": "",
-                "return_collection": 1
+                "return_collection": 1,
+                "order_by": "id",
+                "order_by_type": "desc"
             }
             
             response = self._make_request(

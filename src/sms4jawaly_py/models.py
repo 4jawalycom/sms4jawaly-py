@@ -50,10 +50,10 @@ class BalanceResponse(BaseModel):
     total_balance: int
     packages: Optional[List[Package]] = None
 
-class SenderName(BaseModel):
+class SenderNameItem(BaseModel):
     """نموذج لاسم المرسل"""
     id: int
-    name: str
+    sender_name: str
     status: str
     note: Optional[str] = None
     created_at: str = Field(alias='created_at')
@@ -63,5 +63,4 @@ class SenderNamesResponse(BaseModel):
     """نموذج للرد على طلب أسماء المرسلين"""
     code: int
     message: str
-    senders: List[SenderName]
-    total: int = 0
+    items: List[SenderNameItem]
