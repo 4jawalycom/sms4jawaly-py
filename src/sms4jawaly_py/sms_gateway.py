@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional, Dict, Any
 import requests
-from .models import SMSRequest, SMSResponse, BalanceResponse
+from .models import SMSRequest, SMSResponse, BalanceResponse, SenderNamesResponse
 
 class SMSGatewayError(Exception):
     """Exception raised when an API request fails."""
@@ -103,17 +103,16 @@ class SMSGateway:
         Raises:
             SMSGatewayError: If the API request fails
         """
-        params: Dict[str, Any] = {}
-        
+        params = {}
         if is_active is not None:
             params['is_active'] = is_active
         if order_by:
             params['order_by'] = order_by
         if order_by_type:
             params['order_by_type'] = order_by_type
-        
+            
         response = self._session.get(
-            f'{self.BASE_URL}/balance',
+            f'{self.BASE_URL}/account/packages',
             params=params
         )
         
@@ -121,20 +120,64 @@ class SMSGateway:
             raise SMSGatewayError(
                 f'API request failed with status: {response.status_code}'
             )
-        
+            
         try:
             return BalanceResponse.parse_obj(response.json())
         except Exception as e:
             raise SMSGatewayError(f'Failed to parse response: {e}')
-    
+
+    def get_sender_names(
+        self,
+        page: Optional[int] = None,
+        per_page: Optional[int] = None,
+        order_by: Optional[str] = None,
+        order_by_type: Optional[str] = None
+    ) -> SenderNamesResponse:
+        """Get list of sender names.
+        
+        Args:
+            page: Page number for pagination
+            per_page: Number of items per page
+            order_by: Sort field
+            order_by_type: Sort direction (asc or desc)
+        
+        Returns:
+            SenderNamesResponse object containing list of sender names
+        
+        Raises:
+            SMSGatewayError: If the API request fails
+        """
+        params = {}
+        if page is not None:
+            params['page'] = page
+        if per_page is not None:
+            params['per_page'] = per_page
+        if order_by:
+            params['order_by'] = order_by
+        if order_by_type:
+            params['order_by_type'] = order_by_type
+            
+        response = self._session.get(
+            f'{self.BASE_URL}/sender/names',
+            params=params
+        )
+        
+        if not response.ok:
+            raise SMSGatewayError(
+                f'API request failed with status: {response.status_code}'
+            )
+            
+        try:
+            return SenderNamesResponse.parse_obj(response.json())
+        except Exception as e:
+            raise SMSGatewayError(f'Failed to parse response: {e}')
+
     def close(self):
         """Close the HTTP session."""
         self._session.close()
     
     def __enter__(self):
-        """Support for context manager protocol."""
         return self
-    
+        
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Support for context manager protocol."""
-        self.close()
+        self._session.close()

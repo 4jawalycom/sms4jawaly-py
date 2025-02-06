@@ -27,3 +27,18 @@ class BalanceResponse(BaseModel):
     """Response model for balance requests."""
     balance: float
     packages: Optional[List[Package]] = None
+
+class SenderName(BaseModel):
+    """Model for sender name information."""
+    id: int
+    name: str
+    status: str
+    note: Optional[str] = None
+    created_at: str = Field(alias='created_at')
+    updated_at: str = Field(alias='updated_at')
+
+class SenderNamesResponse(BaseModel):
+    """Response model for sender names requests."""
+    success: bool
+    data: List[SenderName]
+    total: int
