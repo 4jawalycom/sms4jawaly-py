@@ -25,7 +25,7 @@ class SMSGateway:
         self.sender = sender
         self._session = requests.Session()
         self._session.headers.update({
-            'Authorization': api_key,
+            'Authorization': f'Bearer {api_key}',
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         })
