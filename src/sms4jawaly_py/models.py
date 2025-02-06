@@ -3,9 +3,9 @@ from pydantic import BaseModel, Field
 
 class SMSRequest(BaseModel):
     """Request model for sending SMS."""
-    messages: List[str] = Field(alias='messages')
-    recipients: List[str] = Field(alias='recipients')
-    sender: str = Field(alias='sender')
+    numbers: List[str]
+    message: str
+    sender: str
 
 class SMSResponse(BaseModel):
     """Response model for SMS requests."""

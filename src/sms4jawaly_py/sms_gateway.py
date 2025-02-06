@@ -10,7 +10,7 @@ class SMSGatewayError(Exception):
 class SMSGateway:
     """Main class for interacting with the 4jawaly SMS Gateway API."""
     
-    BASE_URL = 'https://4jawaly.net/api/v1'
+    BASE_URL = 'https://api-sms.4jawaly.com/api/v1'
     
     def __init__(self, api_key: str, api_secret: str, sender: str):
         """Initialize the SMS Gateway client.
@@ -25,9 +25,9 @@ class SMSGateway:
         self.sender = sender
         self._session = requests.Session()
         self._session.headers.update({
+            'Authorization': api_key,
             'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {api_key}'
+            'Content-Type': 'application/json'
         })
     
     def send_sms(
@@ -49,16 +49,24 @@ class SMSGateway:
         Raises:
             SMSGatewayError: If the API request fails
         """
-        request = SMSRequest(
-            messages=[message] * len(numbers),
-            recipients=numbers,
-            sender=sender or self.sender
-        )
+        data = {
+            'numbers': numbers,
+            'message': message,
+            'sender': sender or self.sender
+        }
+        
+        print(f"Sending request to {self.BASE_URL}/send")
+        print(f"Headers: {self._session.headers}")
+        print(f"Data: {json.dumps(data, indent=2)}")
         
         response = self._session.post(
             f'{self.BASE_URL}/send',
-            json=request.dict(by_alias=True)
+            json=data
         )
+        
+        print(f"Response status: {response.status_code}")
+        print(f"Response headers: {response.headers}")
+        print(f"Response text: {response.text}")
         
         if not response.ok:
             raise SMSGatewayError(
@@ -112,10 +120,18 @@ class SMSGateway:
         if order_by_type:
             params['order_by_type'] = order_by_type
             
+        print(f"Sending request to {self.BASE_URL}/balance")
+        print(f"Headers: {self._session.headers}")
+        print(f"Params: {params}")
+        
         response = self._session.get(
             f'{self.BASE_URL}/balance',
             params=params
         )
+        
+        print(f"Response status: {response.status_code}")
+        print(f"Response headers: {response.headers}")
+        print(f"Response text: {response.text}")
         
         if not response.ok:
             raise SMSGatewayError(
@@ -158,10 +174,18 @@ class SMSGateway:
         if order_by_type:
             params['order_by_type'] = order_by_type
             
+        print(f"Sending request to {self.BASE_URL}/senders")
+        print(f"Headers: {self._session.headers}")
+        print(f"Params: {params}")
+        
         response = self._session.get(
             f'{self.BASE_URL}/senders',
             params=params
         )
+        
+        print(f"Response status: {response.status_code}")
+        print(f"Response headers: {response.headers}")
+        print(f"Response text: {response.text}")
         
         if not response.ok:
             raise SMSGatewayError(
@@ -173,10 +197,6 @@ class SMSGateway:
         except Exception as e:
             raise SMSGatewayError(f'Failed to parse response: {e}')
 
-    def close(self):
-        """Close the HTTP session."""
-        self._session.close()
-    
     def __enter__(self):
         return self
         
