@@ -61,6 +61,7 @@ class SenderName(BaseModel):
 
 class SenderNamesResponse(BaseModel):
     """نموذج للرد على طلب أسماء المرسلين"""
-    success: bool
-    data: List[SenderName]
-    total: int
+    code: int
+    message: str
+    senders: List[SenderName]
+    total: int = 0
