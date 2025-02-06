@@ -50,14 +50,14 @@ class SMSGateway:
             SMSGatewayError: If the API request fails
         """
         request = SMSRequest(
-            numbers=numbers,
-            message=message,
+            messages=[message] * len(numbers),
+            recipients=numbers,
             sender=sender or self.sender
         )
         
         response = self._session.post(
             f'{self.BASE_URL}/send',
-            json=request.dict()
+            json=request.dict(by_alias=True)
         )
         
         if not response.ok:
