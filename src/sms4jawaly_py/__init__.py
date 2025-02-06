@@ -1,25 +1,36 @@
 """
-4jawaly SMS Gateway SDK for Python
+مكتبة بايثون لبوابة الرسائل 4jawaly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A Python library for sending SMS messages through the 4jawaly SMS Gateway.
+مكتبة بايثون لارسال رسائل SMS من خلال بوابة الرسائل 4jawaly.
 
-Basic usage:
+الاستخدام الأساسي:
 
     >>> from fourjawaly_sms import SMS4JawalyClient
     >>> client = SMS4JawalyClient('your_api_key', 'your_api_secret', 'YOUR_SENDER_NAME')
-    >>> response = client.send_single_sms('966500000000', 'Hello from 4jawaly!')
-    >>> print(response.success)
+    >>> response = client.send_single_sms('966500000000', 'Hello from Python!')
+    >>> response.success
     True
 """
 
-from .sms_gateway import SMSGateway as SMS4JawalyClient
-from .models import SMSResponse, BalanceResponse, SenderNamesResponse
-
 __version__ = "1.0.0"
+
+import os
+import logging
+
+# إعداد التسجيل
+logging.basicConfig(
+    level=os.environ.get("SMS4JAWALY_LOG_LEVEL", "INFO"),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
+# تصدير الفئات والوظائف الرئيسية
+from .sms_gateway import SMS4JawalyClient
+from .models import SMSRequest, SMSResponse, BalanceResponse, SenderNamesResponse
 
 __all__ = [
     "SMS4JawalyClient",
+    "SMSRequest",
     "SMSResponse",
     "BalanceResponse",
     "SenderNamesResponse"
