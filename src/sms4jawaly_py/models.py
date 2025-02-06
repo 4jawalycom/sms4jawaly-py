@@ -1,31 +1,39 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
 class ErrorNumber(BaseModel):
     """نموذج لرقم به خطأ"""
     number: str
+    country: Optional[str] = None
     error: str
 
-class Message(BaseModel):
-    """نموذج للرسالة"""
+class MessageRequest(BaseModel):
+    """نموذج لطلب إرسال الرسالة"""
     text: str
     numbers: List[str]
     sender: str
-    err_text: Optional[str] = None
+
+class MessageResponse(BaseModel):
+    """نموذج للرد على الرسالة"""
+    inserted_numbers: int
+    message: Dict[str, Any]
     error_numbers: Optional[List[ErrorNumber]] = None
+    no_package: Optional[List[str]] = None
+    has_more_iso_code: Optional[List[str]] = None
 
 class SMSRequest(BaseModel):
     """نموذج لطلب إرسال الرسائل"""
-    messages: List[Message]
+    messages: List[MessageRequest]
 
 class SMSResponse(BaseModel):
     """نموذج للرد على طلب إرسال الرسائل"""
+    job_id: str
+    messages: List[MessageResponse]
+    code: int
+    message: str
     success: bool = True
     total_success: int = 0
     total_failed: int = 0
-    job_id: Optional[str] = None
-    messages: Optional[List[Message]] = None
-    errors: Optional[Dict[str, List[str]]] = None
 
 class Package(BaseModel):
     """نموذج لباقة الرسائل"""
