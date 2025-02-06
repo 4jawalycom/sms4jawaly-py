@@ -1,22 +1,34 @@
 from typing import List, Optional, Dict
 from pydantic import BaseModel, Field
 
-class SMSRequest(BaseModel):
-    """Request model for sending SMS."""
+class ErrorNumber(BaseModel):
+    """نموذج لرقم به خطأ"""
+    number: str
+    error: str
+
+class Message(BaseModel):
+    """نموذج للرسالة"""
+    text: str
     numbers: List[str]
-    message: str
     sender: str
+    err_text: Optional[str] = None
+    error_numbers: Optional[List[ErrorNumber]] = None
+
+class SMSRequest(BaseModel):
+    """نموذج لطلب إرسال الرسائل"""
+    messages: List[Message]
 
 class SMSResponse(BaseModel):
-    """Response model for SMS requests."""
-    success: bool
-    total_success: int = Field(alias='total_success')
-    total_failed: int = Field(alias='total_failed')
-    job_ids: List[str] = Field(alias='job_ids')
+    """نموذج للرد على طلب إرسال الرسائل"""
+    success: bool = True
+    total_success: int = 0
+    total_failed: int = 0
+    job_id: Optional[str] = None
+    messages: Optional[List[Message]] = None
     errors: Optional[Dict[str, List[str]]] = None
 
 class Package(BaseModel):
-    """Model for SMS package information."""
+    """نموذج لباقة الرسائل"""
     id: int
     package_points: int = Field(alias='package_points')
     current_points: int = Field(alias='current_points')
@@ -24,12 +36,12 @@ class Package(BaseModel):
     is_active: bool = Field(alias='is_active')
 
 class BalanceResponse(BaseModel):
-    """Response model for balance requests."""
+    """نموذج للرد على طلب الرصيد"""
     balance: float
     packages: Optional[List[Package]] = None
 
 class SenderName(BaseModel):
-    """Model for sender name information."""
+    """نموذج لاسم المرسل"""
     id: int
     name: str
     status: str
@@ -38,7 +50,7 @@ class SenderName(BaseModel):
     updated_at: str = Field(alias='updated_at')
 
 class SenderNamesResponse(BaseModel):
-    """Response model for sender names requests."""
+    """نموذج للرد على طلب أسماء المرسلين"""
     success: bool
     data: List[SenderName]
     total: int

@@ -1,4 +1,5 @@
 import json
+import base64
 from typing import List, Optional, Dict, Any
 import requests
 from .models import SMSRequest, SMSResponse, BalanceResponse, SenderNamesResponse
@@ -10,7 +11,7 @@ class SMSGatewayError(Exception):
 class SMSGateway:
     """Main class for interacting with the 4jawaly SMS Gateway API."""
     
-    BASE_URL = 'https://4jawaly.net/api/v1'
+    BASE_URL = 'https://api-sms.4jawaly.com/api/v1'
     
     def __init__(self, api_key: str, api_secret: str, sender: str):
         """Initialize the SMS Gateway client.
@@ -24,8 +25,9 @@ class SMSGateway:
         self.api_secret = api_secret
         self.sender = sender
         self._session = requests.Session()
+        auth = base64.b64encode(f"{api_key}:{api_secret}".encode()).decode()
         self._session.headers.update({
-            'Authorization': f'Bearer {api_key}',
+            'Authorization': f'Basic {auth}',
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         })
@@ -50,17 +52,21 @@ class SMSGateway:
             SMSGatewayError: If the API request fails
         """
         data = {
-            'numbers': numbers,
-            'message': message,
-            'sender': sender or self.sender
+            "messages": [
+                {
+                    "text": message,
+                    "numbers": numbers,
+                    "sender": sender or self.sender
+                }
+            ]
         }
         
-        print(f"Sending request to {self.BASE_URL}/send")
+        print(f"Sending request to {self.BASE_URL}/account/area/sms/send")
         print(f"Headers: {self._session.headers}")
         print(f"Data: {json.dumps(data, indent=2)}")
         
         response = self._session.post(
-            f'{self.BASE_URL}/send',
+            f'{self.BASE_URL}/account/area/sms/send',
             json=data
         )
         
@@ -120,12 +126,12 @@ class SMSGateway:
         if order_by_type:
             params['order_by_type'] = order_by_type
             
-        print(f"Sending request to {self.BASE_URL}/balance")
+        print(f"Sending request to {self.BASE_URL}/account/area/me/packages")
         print(f"Headers: {self._session.headers}")
         print(f"Params: {params}")
         
         response = self._session.get(
-            f'{self.BASE_URL}/balance',
+            f'{self.BASE_URL}/account/area/me/packages',
             params=params
         )
         
@@ -174,12 +180,12 @@ class SMSGateway:
         if order_by_type:
             params['order_by_type'] = order_by_type
             
-        print(f"Sending request to {self.BASE_URL}/senders")
+        print(f"Sending request to {self.BASE_URL}/account/area/sender/list")
         print(f"Headers: {self._session.headers}")
         print(f"Params: {params}")
         
         response = self._session.get(
-            f'{self.BASE_URL}/senders',
+            f'{self.BASE_URL}/account/area/sender/list',
             params=params
         )
         
