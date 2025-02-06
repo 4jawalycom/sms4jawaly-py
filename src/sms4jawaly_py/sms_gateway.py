@@ -1,210 +1,204 @@
-import json
 import base64
-from typing import List, Optional, Dict, Any
+import logging
 import requests
-from .models import SMSRequest, SMSResponse, BalanceResponse, SenderNamesResponse
+from typing import List, Dict, Any, Optional
+from .models import (
+    SMSRequest, SMSResponse, BalanceResponse,
+    SenderNamesResponse, MessageRequest
+)
+
+logger = logging.getLogger(__name__)
 
 class SMSGatewayError(Exception):
-    """Exception raised when an API request fails."""
+    """خطأ في بوابة الرسائل"""
     pass
 
-class SMSGateway:
-    """Main class for interacting with the 4jawaly SMS Gateway API."""
+class SMS4JawalyClient:
+    """عميل بوابة الرسائل"""
     
-    BASE_URL = 'https://api-sms.4jawaly.com/api/v1'
-    
-    def __init__(self, api_key: str, api_secret: str, sender: str):
-        """Initialize the SMS Gateway client.
-        
-        Args:
-            api_key: Your API key
-            api_secret: Your API secret
-            sender: Default sender name
-        """
-        self.api_key = api_key
-        self.api_secret = api_secret
-        self.sender = sender
-        self._session = requests.Session()
-        auth = base64.b64encode(f"{api_key}:{api_secret}".encode()).decode()
-        self._session.headers.update({
-            'Authorization': f'Basic {auth}',
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        })
-    
-    def send_sms(
+    def __init__(
         self,
-        numbers: List[str],
-        message: str,
-        sender: Optional[str] = None
-    ) -> SMSResponse:
-        """Send SMS to one or multiple recipients.
+        api_key: str,
+        api_secret: str,
+        sender: str,
+        base_url: str = "https://api-sms.4jawaly.com/api/v1/"
+    ):
+        """تهيئة عميل بوابة الرسائل
         
         Args:
-            numbers: List of phone numbers
-            message: Message content
-            sender: Optional sender name (if different from default)
-        
-        Returns:
-            SMSResponse object containing status and job IDs
-        
-        Raises:
-            SMSGatewayError: If the API request fails
+            api_key: مفتاح API
+            api_secret: كلمة سر API
+            sender: اسم المرسل
+            base_url: عنوان API الأساسي
         """
-        data = {
-            "messages": [
-                {
-                    "text": message,
-                    "numbers": numbers,
-                    "sender": sender or self.sender
-                }
-            ]
+        self.base_url = base_url.rstrip("/") + "/"
+        self.sender = sender
+        
+        # إنشاء رأس المصادقة
+        credentials = f"{api_key}:{api_secret}"
+        auth_hash = base64.b64encode(credentials.encode()).decode()
+        self.headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": f"Basic {auth_hash}"
         }
-        
-        print(f"Sending request to {self.BASE_URL}/account/area/sms/send")
-        print(f"Headers: {self._session.headers}")
-        print(f"Data: {json.dumps(data, indent=2)}")
-        
-        response = self._session.post(
-            f'{self.BASE_URL}/account/area/sms/send',
-            json=data
-        )
-        
-        print(f"Response status: {response.status_code}")
-        print(f"Response headers: {response.headers}")
-        print(f"Response text: {response.text}")
-        
-        if not response.ok:
-            raise SMSGatewayError(
-                f'API request failed with status: {response.status_code}'
-            )
-        
-        try:
-            return SMSResponse.parse_obj(response.json())
-        except Exception as e:
-            raise SMSGatewayError(f'Failed to parse response: {e}')
-    
-    def send_single_sms(self, number: str, message: str) -> SMSResponse:
-        """Send SMS to a single recipient.
+
+    def _make_request(
+        self,
+        method: str,
+        endpoint: str,
+        data: Optional[Dict] = None,
+        params: Optional[Dict] = None
+    ) -> Dict[str, Any]:
+        """إرسال طلب إلى API
         
         Args:
-            number: Phone number
-            message: Message content
-        
+            method: طريقة الطلب (GET, POST, etc.)
+            endpoint: نقطة النهاية
+            data: بيانات الطلب
+            params: معلمات الطلب
+            
         Returns:
-            SMSResponse object containing status and job ID
-        
+            Dict[str, Any]: استجابة API
+            
         Raises:
-            SMSGatewayError: If the API request fails
+            SMSGatewayError: عند فشل الطلب
+        """
+        url = self.base_url + endpoint.lstrip("/")
+        
+        logger.info(f"Sending request to {url}")
+        logger.debug(f"Headers: {self.headers}")
+        if data:
+            logger.debug(f"Data: {data}")
+        if params:
+            logger.debug(f"Params: {params}")
+            
+        try:
+            response = requests.request(
+                method=method,
+                url=url,
+                headers=self.headers,
+                json=data,
+                params=params
+            )
+            
+            logger.debug(f"Response status: {response.status_code}")
+            logger.debug(f"Response headers: {response.headers}")
+            logger.debug(f"Response text: {response.text}")
+            
+            if response.status_code >= 400:
+                raise SMSGatewayError(
+                    f"API request failed with status: {response.status_code}"
+                )
+                
+            return response.json()
+            
+        except requests.exceptions.RequestException as e:
+            raise SMSGatewayError(f"Failed to make request: {e}")
+            
+    def send_sms(self, numbers: List[str], message: str) -> SMSResponse:
+        """إرسال رسالة SMS
+        
+        Args:
+            numbers: قائمة بأرقام الهواتف
+            message: نص الرسالة
+            
+        Returns:
+            SMSResponse: نتيجة الإرسال
+            
+        Raises:
+            SMSGatewayError: عند فشل الإرسال
+        """
+        try:
+            request = SMSRequest(
+                messages=[
+                    MessageRequest(
+                        text=message,
+                        numbers=numbers,
+                        sender=self.sender
+                    )
+                ]
+            )
+            
+            response = self._make_request(
+                method="POST",
+                endpoint="account/area/sms/send",
+                data=request.dict()
+            )
+            
+            return SMSResponse.parse_obj(response)
+            
+        except Exception as e:
+            raise SMSGatewayError(f"Failed to parse response: {e}")
+            
+    def send_single_sms(self, number: str, message: str) -> SMSResponse:
+        """إرسال رسالة SMS لرقم واحد
+        
+        Args:
+            number: رقم الهاتف
+            message: نص الرسالة
+            
+        Returns:
+            SMSResponse: نتيجة الإرسال
         """
         return self.send_sms([number], message)
-    
-    def get_balance(
-        self,
-        is_active: Optional[int] = None,
-        order_by: Optional[str] = None,
-        order_by_type: Optional[str] = None
-    ) -> BalanceResponse:
-        """Get account balance and package information.
         
-        Args:
-            is_active: Filter by active packages (0 or 1)
-            order_by: Sort field
-            order_by_type: Sort direction (asc or desc)
+    def get_balance(self) -> BalanceResponse:
+        """جلب رصيد الحساب
         
         Returns:
-            BalanceResponse object containing account information
-        
-        Raises:
-            SMSGatewayError: If the API request fails
-        """
-        params = {}
-        if is_active is not None:
-            params['is_active'] = is_active
-        if order_by:
-            params['order_by'] = order_by
-        if order_by_type:
-            params['order_by_type'] = order_by_type
+            BalanceResponse: معلومات الرصيد
             
-        print(f"Sending request to {self.BASE_URL}/account/area/me/packages")
-        print(f"Headers: {self._session.headers}")
-        print(f"Params: {params}")
-        
-        response = self._session.get(
-            f'{self.BASE_URL}/account/area/me/packages',
-            params=params
-        )
-        
-        print(f"Response status: {response.status_code}")
-        print(f"Response headers: {response.headers}")
-        print(f"Response text: {response.text}")
-        
-        if not response.ok:
-            raise SMSGatewayError(
-                f'API request failed with status: {response.status_code}'
+        Raises:
+            SMSGatewayError: عند فشل جلب الرصيد
+        """
+        try:
+            params = {
+                "is_active": 1,
+                "order_by": "id",
+                "order_by_type": "desc",
+                "page": 1,
+                "page_size": 10,
+                "return_collection": 1
+            }
+            
+            response = self._make_request(
+                method="GET",
+                endpoint="account/area/me/packages",
+                params=params
             )
             
-        try:
-            return BalanceResponse.parse_obj(response.json())
+            return BalanceResponse.parse_obj(response)
+            
         except Exception as e:
-            raise SMSGatewayError(f'Failed to parse response: {e}')
-
-    def get_sender_names(
-        self,
-        page: Optional[int] = None,
-        per_page: Optional[int] = None,
-        order_by: Optional[str] = None,
-        order_by_type: Optional[str] = None
-    ) -> SenderNamesResponse:
-        """Get list of sender names.
-        
-        Args:
-            page: Page number for pagination
-            per_page: Number of items per page
-            order_by: Sort field
-            order_by_type: Sort direction (asc or desc)
+            raise SMSGatewayError(f"Failed to parse response: {e}")
+            
+    def get_sender_names(self) -> SenderNamesResponse:
+        """جلب أسماء المرسلين
         
         Returns:
-            SenderNamesResponse object containing list of sender names
-        
-        Raises:
-            SMSGatewayError: If the API request fails
-        """
-        params = {}
-        if page is not None:
-            params['page'] = page
-        if per_page is not None:
-            params['per_page'] = per_page
-        if order_by:
-            params['order_by'] = order_by
-        if order_by_type:
-            params['order_by_type'] = order_by_type
+            SenderNamesResponse: قائمة بأسماء المرسلين
             
-        print(f"Sending request to {self.BASE_URL}/account/area/sender/list")
-        print(f"Headers: {self._session.headers}")
-        print(f"Params: {params}")
-        
-        response = self._session.get(
-            f'{self.BASE_URL}/account/area/sender/list',
-            params=params
-        )
-        
-        print(f"Response status: {response.status_code}")
-        print(f"Response headers: {response.headers}")
-        print(f"Response text: {response.text}")
-        
-        if not response.ok:
-            raise SMSGatewayError(
-                f'API request failed with status: {response.status_code}'
+        Raises:
+            SMSGatewayError: عند فشل جلب الأسماء
+        """
+        try:
+            params = {
+                "page_size": 10,
+                "page": 1,
+                "status": 1,
+                "sender_name": "",
+                "is_ad": "",
+                "return_collection": 1
+            }
+            
+            response = self._make_request(
+                method="GET",
+                endpoint="account/area/senders",
+                params=params
             )
             
-        try:
-            return SenderNamesResponse.parse_obj(response.json())
+            return SenderNamesResponse.parse_obj(response)
+            
         except Exception as e:
-            raise SMSGatewayError(f'Failed to parse response: {e}')
-
-    def __enter__(self):
-        return self
-        
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._session.close()
+            raise SMSGatewayError(f"Failed to parse response: {e}")
