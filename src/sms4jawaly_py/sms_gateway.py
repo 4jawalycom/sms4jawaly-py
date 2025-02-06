@@ -10,7 +10,7 @@ class SMSGatewayError(Exception):
 class SMSGateway:
     """Main class for interacting with the 4jawaly SMS Gateway API."""
     
-    BASE_URL = 'https://api.4jawaly.com/api/v1'
+    BASE_URL = 'https://4jawaly.net/api/v1'
     
     def __init__(self, api_key: str, api_secret: str, sender: str):
         """Initialize the SMS Gateway client.
@@ -56,7 +56,7 @@ class SMSGateway:
         )
         
         response = self._session.post(
-            f'{self.BASE_URL}/messages/send',
+            f'{self.BASE_URL}/send',
             json=request.dict()
         )
         
@@ -113,7 +113,7 @@ class SMSGateway:
             params['order_by_type'] = order_by_type
             
         response = self._session.get(
-            f'{self.BASE_URL}/account/packages',
+            f'{self.BASE_URL}/balance',
             params=params
         )
         
@@ -159,7 +159,7 @@ class SMSGateway:
             params['order_by_type'] = order_by_type
             
         response = self._session.get(
-            f'{self.BASE_URL}/account/senders',
+            f'{self.BASE_URL}/senders',
             params=params
         )
         
