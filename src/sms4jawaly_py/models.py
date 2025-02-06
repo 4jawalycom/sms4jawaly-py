@@ -45,7 +45,9 @@ class Package(BaseModel):
 
 class BalanceResponse(BaseModel):
     """نموذج للرد على طلب الرصيد"""
-    balance: float
+    code: int
+    message: str
+    total_balance: int
     packages: Optional[List[Package]] = None
 
 class SenderName(BaseModel):
