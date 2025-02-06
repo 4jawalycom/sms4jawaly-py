@@ -1,5 +1,5 @@
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 class ErrorNumber(BaseModel):
     """نموذج لرقم به خطأ"""
@@ -34,6 +34,13 @@ class SMSResponse(BaseModel):
     success: bool = True
     total_success: int = 0
     total_failed: int = 0
+
+    @validator('success')
+    def validate_success(cls, v, values):
+        """التحقق من نجاح الإرسال بناءً على وجود معرف المهمة"""
+        if 'job_id' in values and values['job_id']:
+            return True
+        return False
 
 class Package(BaseModel):
     """نموذج لباقة الرسائل"""
