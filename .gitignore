@@ -27,7 +27,6 @@ ENV/
 
 # IDE
 .idea/
-.vscode/
 *.swp
 *.swo
 
@@ -43,5 +42,6 @@ htmlcov/
 
 # Misc
 .DS_Store
-.env
 *.log
+config.bat
+node_modules
