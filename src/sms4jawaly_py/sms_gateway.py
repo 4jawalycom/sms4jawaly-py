@@ -45,7 +45,7 @@ class SMS4JawalyClient:
         self.api_secret = api_secret or os.getenv('SMS4JAWALY_API_SECRET')
         self.sender = sender or os.getenv('SMS4JAWALY_SENDER')
         
-        if not all([self.api_key, self.api_secret, self.sender]):
+        if not all([self.api_key, self.api_secret]):
             raise SMSGatewayError(
                 "يجب توفير بيانات الاعتماد إما كمعاملات أو كمتغيرات بيئية"
             )
@@ -112,12 +112,13 @@ class SMS4JawalyClient:
         except requests.exceptions.RequestException as e:
             raise SMSGatewayError(f"Failed to make request: {e}")
             
-    def send_sms(self, numbers: List[str], message: str) -> SMSResponse:
+    def send_sms(self, numbers: List[str], message: str, sender: Optional[str] = None) -> SMSResponse:
         """إرسال رسالة SMS
         
         Args:
             numbers: قائمة بأرقام الهواتف
             message: نص الرسالة
+            sender: اسم المرسل
             
         Returns:
             SMSResponse: نتيجة الإرسال
@@ -125,13 +126,16 @@ class SMS4JawalyClient:
         Raises:
             SMSGatewayError: عند فشل الإرسال
         """
+        sender = sender or self.sender
+        if not sender:
+            raise SMSGatewayError("يجب توفير اسم المرسل إما كمعامل أو كمتغير بيئي")
         try:
             request = SMSRequest(
                 messages=[
                     MessageRequest(
                         text=message,
                         numbers=numbers,
-                        sender=self.sender
+                        sender=sender
                     )
                 ]
             )

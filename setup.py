@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="sms4jawaly-py",
-    version="1.0.2",
+    version="1.0.3",
     author="4jawaly",
     author_email="support@4jawaly.com",
     description="Python SDK for sending SMS messages through the 4jawaly SMS Gateway",
