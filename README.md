@@ -166,3 +166,7 @@ result = client.send_sms(
 # نتائج چیک کریں
 print(f'کامیاب: {result["total_success"]} پیغامات')
 print(f'ناکام: {result["total_failed"]} پیغامات')
+
+## PyPI Project Page
+
+You can view the project on PyPI [here](https://pypi.org/project/sms4jawaly-py/).
