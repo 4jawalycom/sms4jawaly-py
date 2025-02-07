@@ -1,215 +1,169 @@
 # SMS4Jawaly Python SDK
 
-<div dir="rtl">
-
-## 🇸🇦 عربي
-
-مكتبة Python لإرسال الرسائل النصية القصيرة عبر بوابة 4jawaly للرسائل
-
-### المتطلبات
-
-- Python 3.6 أو أحدث
-- pip
-
-### التثبيت
-
-```bash
-pip install sms4jawaly-py
-```
-
-### الاستخدام
-
-```python
-from sms4jawaly_py import SMS4JawalyClient
-
-# إنشاء نسخة من العميل
-client = SMS4JawalyClient(
-    api_key='your_api_key',
-    api_secret='your_api_secret',
-    sender='YOUR_SENDER_NAME'
-)
-
-# إرسال رسالة لرقم واحد
-response = client.send_single_sms('966500000000', 'مرحباً من 4jawaly!')
-print(f'تم إرسال الرسالة بنجاح: {response.success}')
-
-# إرسال رسالة لعدة أرقام
-numbers = ['966500000000', '966500000001']
-response = client.send_sms(numbers, 'رسالة جماعية من 4jawaly!')
-print(f'تم إرسال: {response.total_success}')
-```
-
-</div>
-
 ## 🇬🇧 English
 
-Python library for sending SMS messages through the 4jawaly SMS Gateway
+Python library for sending SMS messages through the 4jawaly SMS Gateway with support for parallel sending and batch processing.
 
-### Requirements
-
-- Python 3.6 or later
-- pip
+### Features
+- Parallel SMS sending with automatic batch processing
+- Support for large number of recipients (automatically split into chunks)
+- Comprehensive error handling and reporting
+- Balance checking and sender names management
 
 ### Installation
-
 ```bash
 pip install sms4jawaly-py
 ```
 
 ### Usage
-
 ```python
 from sms4jawaly_py import SMS4JawalyClient
 
-# Create client instance
+# Initialize client
 client = SMS4JawalyClient(
     api_key='your_api_key',
     api_secret='your_api_secret',
     sender='YOUR_SENDER_NAME'
 )
 
-# Send message to a single number
-response = client.send_single_sms('966500000000', 'Hello from 4jawaly!')
-print(f'Message sent successfully: {response.success}')
-
-# Send message to multiple numbers
+# Send to multiple numbers (automatically handled in parallel)
 numbers = ['966500000000', '966500000001']
-response = client.send_sms(numbers, 'Bulk message from 4jawaly!')
-print(f'Sent: {response.total_success}')
+result = client.send_sms(
+    message='Test message from 4jawaly!',
+    numbers=numbers
+)
+
+# Check results
+print(f'Success: {result["total_success"]} messages')
+print(f'Failed: {result["total_failed"]} messages')
+if result["job_ids"]:
+    print(f'Job IDs: {result["job_ids"]}')
+if result["errors"]:
+    print(f'Errors: {result["errors"]}')
+
+# Check balance
+balance = client.get_balance()
+print(f'Current balance: {balance}')
+
+# Get sender names
+senders = client.get_senders()
+print(f'Approved senders: {senders}')
+```
+
+## 🇸🇦 عربي
+
+مكتبة Python لإرسال الرسائل النصية القصيرة عبر بوابة 4jawaly للرسائل مع دعم الإرسال المتوازي ومعالجة الدفعات.
+
+### المميزات
+- إرسال الرسائل بشكل متوازٍ مع معالجة تلقائية للدفعات
+- دعم لعدد كبير من المستلمين (تقسيم تلقائي إلى مجموعات)
+- معالجة شاملة للأخطاء وإعداد التقارير
+- التحقق من الرصيد وإدارة أسماء المرسلين
+
+### التثبيت
+```bash
+pip install sms4jawaly-py
+```
+
+### الاستخدام
+```python
+from sms4jawaly_py import SMS4JawalyClient
+
+# تهيئة العميل
+client = SMS4JawalyClient(
+    api_key='your_api_key',
+    api_secret='your_api_secret',
+    sender='YOUR_SENDER_NAME'
+)
+
+# إرسال لعدة أرقام (معالجة متوازية تلقائياً)
+numbers = ['966500000000', '966500000001']
+result = client.send_sms(
+    message='رسالة تجريبية من 4jawaly!',
+    numbers=numbers
+)
+
+# التحقق من النتائج
+print(f'نجاح: {result["total_success"]} رسالة')
+print(f'فشل: {result["total_failed"]} رسالة')
+if result["job_ids"]:
+    print(f'معرفات المهام: {result["job_ids"]}')
+if result["errors"]:
+    print(f'الأخطاء: {result["errors"]}')
 ```
 
 ## 🇫🇷 Français
 
-Bibliothèque Python pour l'envoi de SMS via la passerelle SMS 4jawaly
+Bibliothèque Python pour l'envoi de SMS via la passerelle 4jawaly avec support pour l'envoi parallèle et le traitement par lots.
 
-### Prérequis
-
-- Python 3.6 ou plus récent
-- pip
+### Caractéristiques
+- Envoi parallèle de SMS avec traitement automatique par lots
+- Support pour un grand nombre de destinataires (division automatique en lots)
+- Gestion complète des erreurs et rapports
+- Vérification du solde et gestion des noms d'expéditeur
 
 ### Installation
-
 ```bash
 pip install sms4jawaly-py
 ```
 
 ### Utilisation
-
 ```python
 from sms4jawaly_py import SMS4JawalyClient
 
-# Créer une instance du client
+# Initialiser le client
 client = SMS4JawalyClient(
     api_key='your_api_key',
     api_secret='your_api_secret',
     sender='YOUR_SENDER_NAME'
 )
 
-# Envoyer un message à un seul numéro
-response = client.send_single_sms('966500000000', 'Bonjour de 4jawaly!')
-print(f'Message envoyé avec succès: {response.success}')
-
-# Envoyer un message à plusieurs numéros
+# Envoi à plusieurs numéros (traitement parallèle automatique)
 numbers = ['966500000000', '966500000001']
-response = client.send_sms(numbers, 'Message groupé de 4jawaly!')
-print(f'Envoyé: {response.total_success}')
-```
+result = client.send_sms(
+    message='Message test de 4jawaly!',
+    numbers=numbers
+)
 
-<div dir="rtl">
+# Vérifier les résultats
+print(f'Succès: {result["total_success"]} messages')
+print(f'Échec: {result["total_failed"]} messages')
+```
 
 ## 🇵🇰 اردو
 
-4jawaly SMS گیٹ وے کے ذریعے SMS پیغامات بھیجنے کے لیے Python لائبریری
+4jawaly SMS گیٹ وے کے ذریعے SMS پیغامات بھیجنے کے لیے پائتھن لائبریری، متوازی بھیجنے اور بیچ پروسیسنگ کی سہولت کے ساتھ۔
 
-### ضروریات
-
-- Python 3.6 یا اس سے نئی ورژن
-- pip
+### خصوصیات
+- خودکار بیچ پروسیسنگ کے ساتھ متوازی SMS بھیجنا
+- بڑی تعداد میں وصول کنندگان کی سہولت (خودکار طور پر حصوں میں تقسیم)
+- جامع غلطی کی نشاندہی اور رپورٹنگ
+- بیلنس چیکنگ اور بھیجنے والے ناموں کا انتظام
 
 ### انسٹالیشن
-
 ```bash
 pip install sms4jawaly-py
 ```
 
 ### استعمال
-
 ```python
 from sms4jawaly_py import SMS4JawalyClient
 
-# کلائنٹ انسٹنس بنائیں
+# کلائنٹ کو شروع کریں
 client = SMS4JawalyClient(
     api_key='your_api_key',
     api_secret='your_api_secret',
     sender='YOUR_SENDER_NAME'
 )
 
-# ایک نمبر پر پیغام بھیجیں
-response = client.send_single_sms('966500000000', '4jawaly سے سلام!')
-print(f'پیغام کامیابی سے بھیج دیا گیا: {response.success}')
-
-# متعدد نمبروں پر پیغام بھیجیں
+# متعدد نمبروں پر بھیجیں (خودکار متوازی پروسیسنگ)
 numbers = ['966500000000', '966500000001']
-response = client.send_sms(numbers, '4jawaly سے اجتماعی پیغام!')
-print(f'بھیجے گئے: {response.total_success}')
+result = client.send_sms(
+    message='4jawaly سے ٹیسٹ پیغام!',
+    numbers=numbers
+)
+
+# نتائج چیک کریں
+print(f'کامیاب: {result["total_success"]} پیغامات')
+print(f'ناکام: {result["total_failed"]} پیغامات')
 ```
-
-</div>
-
-## 📚 API Documentation / التوثيق / Documentation / دستاویزات
-
-### SMS4JawalyClient
-
-```python
-class SMS4JawalyClient:
-    def __init__(self, api_key: str, api_secret: str, sender: str):
-        """
-        Initialize the client
-        تهيئة العميل
-        Initialiser le client
-        کلائنٹ کو شروع کریں
-        """
-        pass
-    
-    def send_single_sms(self, number: str, message: str) -> SMSResponse:
-        """
-        Send to single number
-        إرسال لرقم واحد
-        Envoyer à un seul numéro
-        ایک نمبر پر بھیجیں
-        """
-        pass
-    
-    def send_sms(self, numbers: List[str], message: str) -> SMSResponse:
-        """
-        Send to multiple numbers
-        إرسال لعدة أرقام
-        Envoyer à plusieurs numéros
-        متعدد نمبروں پر بھیجیں
-        """
-        pass
-    
-    def get_balance(self, is_active: Optional[int] = None) -> BalanceResponse:
-        """
-        Check balance
-        فحص الرصيد
-        Vérifier le solde
-        بیلنس چیک کریں
-        """
-        pass
-
-class SMSResponse:
-    success: bool
-    total_success: int
-    total_failed: int
-    job_ids: List[str]
-    errors: Optional[Dict[str, List[str]]]
-
-class BalanceResponse:
-    balance: float
-    packages: Optional[List[Package]]
-```
-
-## 📝 License / الترخيص / Licence / لائسنس
-
-MIT License / رخصة MIT / Licence MIT / MIT لائسنس

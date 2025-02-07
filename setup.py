@@ -5,15 +5,15 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="sms4jawaly-py",
-    version="1.0.0",
+    version="1.0.2",
     author="4jawaly",
     author_email="support@4jawaly.com",
     description="Python SDK for sending SMS messages through the 4jawaly SMS Gateway",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/4jawalycom/sms4jawaly-py",
+    url="https://github.com/4jawalycom/4jawaly.com_bulk_sms",
     project_urls={
-        "Bug Tracker": "https://github.com/4jawalycom/sms4jawaly-py/issues",
+        "Bug Tracker": "https://github.com/4jawalycom/4jawaly.com_bulk_sms/issues",
         "Documentation": "https://docs.4jawaly.com",
     },
     classifiers=[
@@ -44,6 +44,7 @@ setup(
             "flake8>=3.9",
             "mypy>=0.910",
             "twine>=3.4",
+            "build>=0.7.0",
         ],
     },
 )

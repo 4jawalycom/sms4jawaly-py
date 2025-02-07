@@ -1,11 +1,18 @@
 import base64
 import logging
-import requests
+import os
 from typing import List, Dict, Any, Optional
+
+import requests
+from dotenv import load_dotenv
+
 from .models import (
     SMSRequest, SMSResponse, BalanceResponse,
     SenderNamesResponse, MessageRequest
 )
+
+# تحميل المتغيرات البيئية
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -18,24 +25,33 @@ class SMS4JawalyClient:
     
     def __init__(
         self,
-        api_key: str,
-        api_secret: str,
-        sender: str,
+        api_key: str = None,
+        api_secret: str = None,
+        sender: str = None,
         base_url: str = "https://api-sms.4jawaly.com/api/v1/"
     ):
         """تهيئة عميل بوابة الرسائل
         
         Args:
-            api_key: مفتاح API
-            api_secret: كلمة سر API
-            sender: اسم المرسل
+            api_key: مفتاح API (اختياري إذا تم تعيينه في المتغيرات البيئية)
+            api_secret: كلمة سر API (اختياري إذا تم تعيينه في المتغيرات البيئية)
+            sender: اسم المرسل (اختياري إذا تم تعيينه في المتغيرات البيئية)
             base_url: عنوان API الأساسي
         """
         self.base_url = base_url.rstrip("/") + "/"
-        self.sender = sender
+        
+        # استخدام المتغيرات البيئية إذا لم يتم تمرير القيم
+        self.api_key = api_key or os.getenv('SMS4JAWALY_API_KEY')
+        self.api_secret = api_secret or os.getenv('SMS4JAWALY_API_SECRET')
+        self.sender = sender or os.getenv('SMS4JAWALY_SENDER')
+        
+        if not all([self.api_key, self.api_secret, self.sender]):
+            raise SMSGatewayError(
+                "يجب توفير بيانات الاعتماد إما كمعاملات أو كمتغيرات بيئية"
+            )
         
         # إنشاء رأس المصادقة
-        credentials = f"{api_key}:{api_secret}"
+        credentials = f"{self.api_key}:{self.api_secret}"
         auth_hash = base64.b64encode(credentials.encode()).decode()
         self.headers = {
             "Accept": "application/json",
