@@ -22,15 +22,15 @@ from sms4jawaly_py import SMS4JawalyClient
 # Initialize client
 client = SMS4JawalyClient(
     api_key='your_api_key',
-    api_secret='your_api_secret',
-    sender='YOUR_SENDER_NAME'
+    api_secret='your_api_secret'
 )
 
 # Send to multiple numbers (automatically handled in parallel)
 numbers = ['966500000000', '966500000001']
 result = client.send_sms(
     message='Test message from 4jawaly!',
-    numbers=numbers
+    numbers=numbers,
+    sender='YOUR_SENDER_NAME'
 )
 
 # Check results
@@ -72,15 +72,15 @@ from sms4jawaly_py import SMS4JawalyClient
 # تهيئة العميل
 client = SMS4JawalyClient(
     api_key='your_api_key',
-    api_secret='your_api_secret',
-    sender='YOUR_SENDER_NAME'
+    api_secret='your_api_secret'
 )
 
 # إرسال لعدة أرقام (معالجة متوازية تلقائياً)
 numbers = ['966500000000', '966500000001']
 result = client.send_sms(
     message='رسالة تجريبية من 4jawaly!',
-    numbers=numbers
+    numbers=numbers,
+    sender='YOUR_SENDER_NAME'
 )
 
 # التحقق من النتائج
@@ -114,15 +114,15 @@ from sms4jawaly_py import SMS4JawalyClient
 # Initialiser le client
 client = SMS4JawalyClient(
     api_key='your_api_key',
-    api_secret='your_api_secret',
-    sender='YOUR_SENDER_NAME'
+    api_secret='your_api_secret'
 )
 
 # Envoi à plusieurs numéros (traitement parallèle automatique)
 numbers = ['966500000000', '966500000001']
 result = client.send_sms(
     message='Message test de 4jawaly!',
-    numbers=numbers
+    numbers=numbers,
+    sender='YOUR_SENDER_NAME'
 )
 
 # Vérifier les résultats
@@ -152,18 +152,17 @@ from sms4jawaly_py import SMS4JawalyClient
 # کلائنٹ کو شروع کریں
 client = SMS4JawalyClient(
     api_key='your_api_key',
-    api_secret='your_api_secret',
-    sender='YOUR_SENDER_NAME'
+    api_secret='your_api_secret'
 )
 
 # متعدد نمبروں پر بھیجیں (خودکار متوازی پروسیسنگ)
 numbers = ['966500000000', '966500000001']
 result = client.send_sms(
     message='4jawaly سے ٹیسٹ پیغام!',
-    numbers=numbers
+    numbers=numbers,
+    sender='YOUR_SENDER_NAME'
 )
 
 # نتائج چیک کریں
 print(f'کامیاب: {result["total_success"]} پیغامات')
 print(f'ناکام: {result["total_failed"]} پیغامات')
-```
